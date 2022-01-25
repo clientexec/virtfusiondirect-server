@@ -72,7 +72,7 @@ class PluginVirtfusiondirect extends ServerPlugin
     {
         $userPackage = new UserPackage($args['userPackageId']);
         $this->create($this->buildParams($userPackage));
-        return $userPackage->getCustomField("Domain Name") . ' has been created.';
+        return 'Package has been created.';
     }
 
     public function create($args)
@@ -101,7 +101,7 @@ class PluginVirtfusiondirect extends ServerPlugin
     {
         $userPackage = new UserPackage($args['userPackageId']);
         $this->update($this->buildParams($userPackage, $args));
-        return $userPackage->getCustomField("Domain Name") . ' has been updated.';
+        // return 'Package has been updated.';
     }
 
     public function update($args)
@@ -112,7 +112,7 @@ class PluginVirtfusiondirect extends ServerPlugin
     {
         $userPackage = new UserPackage($args['userPackageId']);
         $this->delete($this->buildParams($userPackage));
-        return $userPackage->getCustomField("Domain Name") . ' has been deleted.';
+        return 'Package has been deleted.';
     }
 
     public function delete($args)
@@ -130,7 +130,7 @@ class PluginVirtfusiondirect extends ServerPlugin
     {
         $userPackage = new UserPackage($args['userPackageId']);
         $this->suspend($this->buildParams($userPackage));
-        return $userPackage->getCustomField("Domain Name") . ' has been suspended.';
+        return 'Package has been suspended.';
     }
 
     public function suspend($args)
@@ -146,7 +146,7 @@ class PluginVirtfusiondirect extends ServerPlugin
     {
         $userPackage = new UserPackage($args['userPackageId']);
         $this->unsuspend($this->buildParams($userPackage));
-        return $userPackage->getCustomField("Domain Name") . ' has been unsuspended.';
+        return 'Package has been unsuspended.';
     }
 
     public function unsuspend($args)
