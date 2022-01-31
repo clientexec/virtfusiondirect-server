@@ -94,6 +94,12 @@ class PluginVirtfusiondirect extends ServerPlugin
         if ($response['info']['http_code'] === 201) {
             $userPackage = new UserPackage($args['package']['id']);
             $userPackage->setCustomField('Server Acct Properties', $response['json']->data->id);
+        } else {
+            if (isset($response['json']->errors)) {
+                throw new CE_Exception($response['json']->errors[0]);
+            } else {
+                throw new CE_Exception('An unknown error occurred');
+            }
         }
     }
 
@@ -122,8 +128,24 @@ class PluginVirtfusiondirect extends ServerPlugin
             $args,
             'DELETE'
         );
-        $userPackage = new UserPackage($args['package']['id']);
-        $userPackage->setCustomField('Server Acct Properties', '');
+        if ($response['info']['http_code'] === 204) {
+            $userPackage = new UserPackage($args['package']['id']);
+            $userPackage->setCustomField('Server Acct Properties', '');
+        } else {
+            if (isset($response['json']->errors)) {
+                throw new CE_Exception($response['json']->errors[0]);
+            } elseif (isset($response['json']->message)) {
+                throw new CE_Exception($response['json']->message);
+            } elseif ($response['info']['http_code'] === 404) {
+                if ($response['json']->msg == 'server not found') {
+                    $userPackage = new UserPackage($args['package']['id']);
+                    $userPackage->setCustomField('Server Acct Properties', '');
+                }
+                throw new CE_Exception('Server Not Found');
+            } else {
+                throw new CE_Exception('An unknown error occurred');
+            }
+        }
     }
 
     public function doSuspend($args)
@@ -140,6 +162,17 @@ class PluginVirtfusiondirect extends ServerPlugin
             $args,
             'POST'
         );
+        if ($response['info']['http_code'] !== 204) {
+            if (isset($response['json']->errors)) {
+                throw new CE_Exception($response['json']->errors[0]);
+            } elseif (isset($response['json']->msg)) {
+                throw new CE_Exception($response['json']->msg);
+            } elseif ($response['info']['http_code'] === 404) {
+                throw new CE_Exception('Server Not Found');
+            } else {
+                throw new CE_Exception('An unknown error occurred');
+            }
+        }
     }
 
     public function doUnSuspend($args)
@@ -156,6 +189,17 @@ class PluginVirtfusiondirect extends ServerPlugin
             $args,
             'POST'
         );
+        if ($response['info']['http_code'] !== 204) {
+            if (isset($response['json']->errors)) {
+                throw new CE_Exception($response['json']->errors[0]);
+            } elseif (isset($response['json']->msg)) {
+                throw new CE_Exception($response['json']->msg);
+            } elseif ($response['info']['http_code'] === 404) {
+                throw new CE_Exception('Server Not Found');
+            } else {
+                throw new CE_Exception('An unknown error occurred');
+            }
+        }
     }
 
     public function testConnection($args)
@@ -285,14 +329,12 @@ class PluginVirtfusiondirect extends ServerPlugin
         ];
 
         $ch = curl_init($host);
-        // $caPathOrFile = \Composer\CaBundle\CaBundle::getSystemCaRootBundlePath();
-        // if (is_dir($caPathOrFile)) {
-        //     curl_setopt($ch, CURLOPT_CAPATH, $caPathOrFile);
-        // } else {
-        //     curl_setopt($ch, CURLOPT_CAINFO, $caPathOrFile);
-        // }
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        $caPathOrFile = \Composer\CaBundle\CaBundle::getSystemCaRootBundlePath();
+        if (is_dir($caPathOrFile)) {
+            curl_setopt($ch, CURLOPT_CAPATH, $caPathOrFile);
+        } else {
+            curl_setopt($ch, CURLOPT_CAINFO, $caPathOrFile);
+        }
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
