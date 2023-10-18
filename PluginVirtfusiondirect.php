@@ -94,6 +94,11 @@ class PluginVirtfusiondirect extends ServerPlugin
         if ($response['info']['http_code'] === 201) {
             $userPackage = new UserPackage($args['package']['id']);
             $userPackage->setCustomField('Server Acct Properties', $response['json']->data->id);
+            $userPackage->setCustomField('Shared', 0);
+            $userPackage->setCustomField(
+                'IP Address',
+                $response['json']->data->network->interfaces[0]->ipv4[0]->address
+            );
         } else {
             if (isset($response['json']->errors)) {
                 throw new CE_Exception($response['json']->errors[0]);
@@ -259,17 +264,20 @@ class PluginVirtfusiondirect extends ServerPlugin
             $ssoUrl = 'https://' . $args['server']['variables']['ServerHostName'] . $response['json']->data->authentication->endpoint_complete;
 
             return array(
-                'link'    => '<li><a target="_blank" href="' . $ssoUrl . '">' . $linkText . '</a></li>',
-                'rawlink' =>  $ssoUrl,
-                'form'    => ''
+                'fa' => 'fa fa-user fa-fw',
+                'link' => $ssoUrl,
+                'text' => $linkText,
+                'form' => ''
             );
         } else {
             $link = 'index.php?fuse=clients&controller=products&action=openpackagedirectlink&packageId=' . $userPackage->getId() . '&sessionHash=' . CE_Lib::getSessionHash();
 
-            return array(
-                'link' => '<li><a target="_blank" href="' . $link .  '">' . $linkText . '</a></li>',
+            return [
+                'fa' => 'fa fa-user fa-fw',
+                'link' => $link,
+                'text' => $linkText,
                 'form' => ''
-            );
+            ];
         }
     }
 
